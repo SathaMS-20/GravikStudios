@@ -30,15 +30,19 @@ export function Reveal({
 }
 
 export function RevealWords({ text, className }: { text: string; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  // Observe the un-clipped wrapper: the inner words start translated below an
+  // overflow-hidden mask, so observing them directly never intersects.
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
   return (
-    <span className={className}>
+    <span ref={ref} className={className}>
       {text.split(" ").map((word, i) => (
         <span key={`${word}-${i}`} className="inline-block overflow-hidden align-bottom">
           <motion.span
             className="inline-block"
             initial={{ y: "110%", opacity: 0 }}
-            whileInView={{ y: "0%", opacity: 1 }}
-            viewport={{ once: true, margin: "-60px" }}
+            animate={inView ? { y: "0%", opacity: 1 } : { y: "110%", opacity: 0 }}
             transition={{ duration: 0.95, delay: i * 0.055, ease: EASE }}
           >
             {word}
@@ -49,6 +53,7 @@ export function RevealWords({ text, className }: { text: string; className?: str
     </span>
   );
 }
+
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
